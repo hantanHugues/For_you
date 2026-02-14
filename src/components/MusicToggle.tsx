@@ -7,31 +7,39 @@ const MUSIC_URL =
   'https://archive.org/download/NextToYouParasyte/Next%20to%20you%20-%20Parasyte.mp3';
 
 export default function MusicToggle() {
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const hasAttemptedPlay = useRef(false);
 
   useEffect(() => {
-    // Démarrage automatique de la musique au chargement
-    const audio = new Audio(MUSIC_URL);
-    audio.loop = true;
-    audio.volume = 0.35;
-    audio.crossOrigin = 'anonymous';
-    audioRef.current = audio;
+    // Créer l'audio une seule fois
+    if (!audioRef.current) {
+      const audio = new Audio(MUSIC_URL);
+      audio.loop = true;
+      audio.volume = 0.35;
+      audio.crossOrigin = 'anonymous';
+      audioRef.current = audio;
+    }
     
-    // Tenter de jouer automatiquement
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Si autoplay est bloqué, passer en mode pause
-        setIsPlaying(false);
-      });
+    // Tenter de jouer automatiquement uniquement une fois
+    if (!hasAttemptedPlay.current) {
+      hasAttemptedPlay.current = true;
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true);
+          })
+          .catch(() => {
+            // Si autoplay est bloqué, rester en mode pause
+            setIsPlaying(false);
+          });
+      }
     }
 
+    // Cleanup function qui ne détruit pas l'audio
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      // Ne pas détruire l'audio en développement à cause du strict mode
     };
   }, []);
 
