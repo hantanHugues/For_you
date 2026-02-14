@@ -21,7 +21,7 @@ function WordRevealLine({
   const words = line.split(' ');
 
   return (
-    <p className="text-lg sm:text-xl md:text-2xl lg:text-[1.75rem] xl:text-3xl leading-relaxed md:leading-loose text-gold-100 font-light italic tracking-wide">
+    <p className="text-lg sm:text-xl md:text-2xl lg:text-[1.75rem] xl:text-3xl leading-relaxed md:leading-[2.5rem] lg:leading-[3rem] text-gold-100 font-light italic tracking-wide min-h-[2rem] md:min-h-[3rem]">
       {words.map((word, wIndex) => (
         <motion.span
           key={wIndex}
@@ -76,7 +76,7 @@ export default function StanzaReveal({ lines, index, total }: StanzaRevealProps)
   });
 
   return (
-    <div ref={stanzaRef} className="relative py-14 md:py-20">
+    <div ref={stanzaRef} className="relative py-16 md:py-24 lg:py-28">
       {/* Stanza number */}
       <motion.p
         style={{ opacity }}
@@ -94,7 +94,7 @@ export default function StanzaReveal({ lines, index, total }: StanzaRevealProps)
         }}
         className="text-center"
       >
-        <div className="space-y-1 md:space-y-2">
+        <div className="space-y-2 sm:space-y-3 md:space-y-4">
           {lines.map((line, i) => (
             <WordRevealLine
               key={i}
@@ -110,7 +110,7 @@ export default function StanzaReveal({ lines, index, total }: StanzaRevealProps)
       {index < total - 1 && (
         <motion.div
           style={{ opacity }}
-          className="mt-14 md:mt-20 flex items-center justify-center gap-3"
+          className="mt-16 md:mt-24 lg:mt-28 flex items-center justify-center gap-3"
         >
           <div className="h-px w-10 bg-gradient-to-r from-transparent to-gold-400/20" />
           <svg width="10" height="10" viewBox="0 0 20 20" fill="none" className="text-gold-400/20">
