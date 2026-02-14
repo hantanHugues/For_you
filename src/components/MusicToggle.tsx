@@ -3,8 +3,7 @@
 import { useState, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const MUSIC_URL =
-  'https://archive.org/download/NextToYouParasyte/Next%20to%20you%20-%20Parasyte.mp3';
+const MUSIC_URL = '/PARASYTE%20_%20next%20to%20you%20anime%20version.webm';
 
 export interface MusicToggleRef {
   startMusic: () => void;
