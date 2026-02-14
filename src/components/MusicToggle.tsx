@@ -1,29 +1,47 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MUSIC_URL =
   'https://archive.org/download/NextToYouParasyte/Next%20to%20you%20-%20Parasyte.mp3';
 
 export default function MusicToggle() {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const toggle = useCallback(() => {
-    if (isPlaying) {
+  useEffect(() => {
+    // Démarrage automatique de la musique au chargement
+    const audio = new Audio(MUSIC_URL);
+    audio.loop = true;
+    audio.volume = 0.35;
+    audio.crossOrigin = 'anonymous';
+    audioRef.current = audio;
+    
+    // Tenter de jouer automatiquement
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Si autoplay est bloqué, passer en mode pause
+        setIsPlaying(false);
+      });
+    }
+
+    return () => {
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current = null;
       }
+    };
+  }, []);
+
+  const toggle = useCallback(() => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      if (!audioRef.current) {
-        const audio = new Audio(MUSIC_URL);
-        audio.loop = true;
-        audio.volume = 0.35;
-        audio.crossOrigin = 'anonymous';
-        audioRef.current = audio;
-      }
       audioRef.current.play().catch(() => {});
       setIsPlaying(true);
     }
@@ -64,7 +82,7 @@ export default function MusicToggle() {
               ))}
             </div>
             <span className="font-sans text-[10px] uppercase tracking-[0.15em]">
-              On
+              Pause
             </span>
           </motion.div>
         ) : (
