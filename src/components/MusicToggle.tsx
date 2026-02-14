@@ -6,33 +6,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 const MUSIC_URL =
   'https://archive.org/download/NextToYouParasyte/Next%20to%20you%20-%20Parasyte.mp3';
 
-interface MusicToggleProps {
-  shouldAutoPlay?: boolean;
-}
-
-export default function MusicToggle({ shouldAutoPlay = false }: MusicToggleProps) {
+export default function MusicToggle() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasAutoPlayed = useRef(false);
 
   useEffect(() => {
-    // Démarrer la musique quand on ouvre l'enveloppe
-    if (shouldAutoPlay && !hasAutoPlayed.current) {
-      hasAutoPlayed.current = true;
-      if (!audioRef.current) {
-        const audio = new Audio(MUSIC_URL);
-        audio.loop = true;
-        audio.volume = 0.35;
-        audio.crossOrigin = 'anonymous';
-        audioRef.current = audio;
-        audio.play().then(() => {
-          setIsPlaying(true);
-        }).catch(() => {
-          // Autoplay bloqué par le navigateur
-        });
-      }
+    // Auto-play après 3 secondes (après l'animation d'ouverture)
+    if (!hasAutoPlayed.current) {
+      const timer = setTimeout(() => {
+        if (!audioRef.current && !isPlaying) {
+          const audio = new Audio(MUSIC_URL);
+          audio.loop = true;
+          audio.volume = 0.35;
+          audio.crossOrigin = 'anonymous';
+          audioRef.current = audio;
+          audio.play().then(() => {
+            setIsPlaying(true);
+            hasAutoPlayed.current = true;
+          }).catch(() => {
+            hasAutoPlayed.current = true;
+          });
+        }
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  }, [shouldAutoPlay]);
+  }, [isPlaying]);
 
   const toggle = useCallback(() => {
     if (isPlaying) {

@@ -70,7 +70,7 @@ export default function Home() {
 
         <ParticleCanvas />
         <CursorGlow />
-        <MusicToggle shouldAutoPlay={isRevealed} />
+        <MusicToggle />
 
         {/* Ambient gradient overlays */}
         <div className="fixed inset-0 pointer-events-none z-[1]">
