@@ -7,41 +7,46 @@ const MUSIC_URL =
   'https://archive.org/download/NextToYouParasyte/Next%20to%20you%20-%20Parasyte.mp3';
 
 export default function MusicToggle() {
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const hasAutoPlayed = useRef(false);
 
   useEffect(() => {
-    // Démarrage automatique de la musique au chargement
-    const audio = new Audio(MUSIC_URL);
-    audio.loop = true;
-    audio.volume = 0.35;
-    audio.crossOrigin = 'anonymous';
-    audioRef.current = audio;
-    
-    // Tenter de jouer automatiquement
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Si autoplay est bloqué, passer en mode pause
-        setIsPlaying(false);
-      });
+    // Auto-play après 3 secondes (après l'animation d'ouverture)
+    if (!hasAutoPlayed.current) {
+      const timer = setTimeout(() => {
+        if (!audioRef.current && !isPlaying) {
+          const audio = new Audio(MUSIC_URL);
+          audio.loop = true;
+          audio.volume = 0.35;
+          audio.crossOrigin = 'anonymous';
+          audioRef.current = audio;
+          audio.play().then(() => {
+            setIsPlaying(true);
+            hasAutoPlayed.current = true;
+          }).catch(() => {
+            hasAutoPlayed.current = true;
+          });
+        }
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
+  }, [isPlaying]);
 
   const toggle = useCallback(() => {
-    if (!audioRef.current) return;
-    
     if (isPlaying) {
-      audioRef.current.pause();
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
       setIsPlaying(false);
     } else {
+      if (!audioRef.current) {
+        const audio = new Audio(MUSIC_URL);
+        audio.loop = true;
+        audio.volume = 0.35;
+        audio.crossOrigin = 'anonymous';
+        audioRef.current = audio;
+      }
       audioRef.current.play().catch(() => {});
       setIsPlaying(true);
     }
@@ -82,7 +87,7 @@ export default function MusicToggle() {
               ))}
             </div>
             <span className="font-sans text-[10px] uppercase tracking-[0.15em]">
-              Pause
+              On
             </span>
           </motion.div>
         ) : (
