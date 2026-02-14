@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ParticleCanvas from '@/components/ParticleCanvas';
 import HeroSection from '@/components/HeroSection';
@@ -8,7 +8,7 @@ import StanzaReveal from '@/components/StanzaReveal';
 import ClosingSection from '@/components/ClosingSection';
 import EnvelopeIntro from '@/components/EnvelopeIntro';
 import CursorGlow from '@/components/CursorGlow';
-import MusicToggle from '@/components/MusicToggle';
+import MusicToggle, { MusicToggleRef } from '@/components/MusicToggle';
 import Dedication from '@/components/Dedication';
 
 const stanzas = [
@@ -40,13 +40,23 @@ const stanzas = [
 
 export default function Home() {
   const [isRevealed, setIsRevealed] = useState(false);
+  const musicToggleRef = useRef<MusicToggleRef>(null);
+
+  const handleMusicStart = () => {
+    if (musicToggleRef.current) {
+      musicToggleRef.current.startMusic();
+    }
+  };
 
   return (
     <div className="breathing-bg min-h-screen">
       {/* Envelope intro overlay */}
       <AnimatePresence>
         {!isRevealed && (
-          <EnvelopeIntro onOpen={() => setIsRevealed(true)} />
+          <EnvelopeIntro 
+            onOpen={() => setIsRevealed(true)}
+            onMusicStart={handleMusicStart}
+          />
         )}
       </AnimatePresence>
 
@@ -70,7 +80,7 @@ export default function Home() {
 
         <ParticleCanvas />
         <CursorGlow />
-        <MusicToggle />
+        <MusicToggle ref={musicToggleRef} />
 
         {/* Ambient gradient overlays */}
         <div className="fixed inset-0 pointer-events-none z-[1]">

@@ -5,13 +5,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface EnvelopeIntroProps {
   onOpen: () => void;
+  onMusicStart?: () => void;
 }
 
-export default function EnvelopeIntro({ onOpen }: EnvelopeIntroProps) {
+export default function EnvelopeIntro({ onOpen, onMusicStart }: EnvelopeIntroProps) {
   const [isOpening, setIsOpening] = useState(false);
 
   const handleOpen = () => {
     setIsOpening(true);
+    if (onMusicStart) {
+      onMusicStart();
+    }
     setTimeout(() => {
       onOpen();
     }, 1800);

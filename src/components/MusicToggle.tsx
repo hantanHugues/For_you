@@ -1,47 +1,33 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MUSIC_URL =
   'https://archive.org/download/NextToYouParasyte/Next%20to%20you%20-%20Parasyte.mp3';
 
-export default function MusicToggle() {
+export interface MusicToggleRef {
+  startMusic: () => void;
+}
+
+const MusicToggle = forwardRef<MusicToggleRef>((props, ref) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const hasAttemptedPlay = useRef(false);
 
-  useEffect(() => {
-    // Créer l'audio une seule fois
-    if (!audioRef.current) {
-      const audio = new Audio(MUSIC_URL);
-      audio.loop = true;
-      audio.volume = 0.35;
-      audio.crossOrigin = 'anonymous';
-      audioRef.current = audio;
-    }
-    
-    // Tenter de jouer automatiquement uniquement une fois
-    if (!hasAttemptedPlay.current) {
-      hasAttemptedPlay.current = true;
-      const playPromise = audioRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch(() => {
-            // Si autoplay est bloqué, rester en mode pause
-            setIsPlaying(false);
-          });
+  useImperativeHandle(ref, () => ({
+    startMusic: () => {
+      if (!audioRef.current) {
+        const audio = new Audio(MUSIC_URL);
+        audio.loop = true;
+        audio.volume = 0.35;
+        audio.crossOrigin = 'anonymous';
+        audioRef.current = audio;
       }
-    }
-
-    // Cleanup function qui ne détruit pas l'audio
-    return () => {
-      // Ne pas détruire l'audio en développement à cause du strict mode
-    };
-  }, []);
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(() => {});
+    },
+  }));
 
   const toggle = useCallback(() => {
     if (!audioRef.current) return;
@@ -125,4 +111,8 @@ export default function MusicToggle() {
       </AnimatePresence>
     </motion.button>
   );
-}
+});
+
+MusicToggle.displayName = 'MusicToggle';
+
+export default MusicToggle;
